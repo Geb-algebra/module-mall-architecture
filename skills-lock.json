@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "composable-skill-design": {
+      "source": "geb-algebra/geb-agent-skills",
+      "sourceType": "github",
+      "skillPath": "composable-skill-design/SKILL.md",
+      "computedHash": "59e1af25f234ec1fbfb655bddcb693b5cc060c94888899a0690edee0b561d586"
+    },
+    "paragraph-writing": {
+      "source": "geb-algebra/geb-agent-skills",
+      "sourceType": "github",
+      "skillPath": "paragraph-writing/SKILL.md",
+      "computedHash": "d791e2341cfa311cb1a3fd7bd34fa5ce7880c7139ca03d4f0cf5865b4e85460e"
+    }
+  }
+}
