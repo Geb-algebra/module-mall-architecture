@@ -1,0 +1,4 @@
+interface:
+  display_name: "Module Mall: TypeScript Workspaces"
+  short_description: "TypeScriptとnpm workspacesにMMAを適用するコーディング規約"
+  default_prompt: "$module-mall-typescript-workspaces を使って、このTypeScript/npm workspacesプロジェクトのパッケージ境界と依存関係を評価してください。"
