@@ -1,4 +1,4 @@
 interface:
   display_name: "Module Mall Architecture"
-  short_description: "変更影響範囲を小さく特定しやすくするパッケージ設計原則"
+  short_description: "変更影響範囲を小さく特定しやすくするモジュール設計原則"
   default_prompt: "$module-mall-architecture を使って、この設計を Module Mall Architecture の原則に照らして評価してください。"

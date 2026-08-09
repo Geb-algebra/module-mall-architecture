@@ -1,21 +1,21 @@
 ---
 name: module-mall-typescript-workspaces
-description: Module Mall Architecture（MMA）をTypeScriptとnpm workspacesのmonorepoへ適用するための、Package境界、公開契約、import、manifest、契約テスト、暗黙的依存に関する検証可能なコーディング規約を提供するContext Skill。対象プロジェクトの設計・実装・変更・レビュー・説明で使用する。TypeScript以外の言語、npm workspaces以外のworkspace方式、MMAの一般概念だけを扱う場合は対象外。
+description: Module Mall Architecture（MMA）のModuleをTypeScriptとnpm workspacesのmonorepoでworkspace packageとして実装するための、workspace package境界、公開契約、import、manifest、契約テスト、暗黙的依存に関する検証可能なコーディング規約を提供するContext Skill。対象プロジェクトの設計・実装・変更・レビュー・説明で使用する。TypeScript以外の言語、npm workspaces以外のworkspace方式、MMAの一般概念だけを扱う場合は対象外。
 ---
 
 # Module Mall Architecture for TypeScript npm Workspaces
 
 ## 適用範囲
 
-この規約は、TypeScriptのコードをnpm workspacesで複数のworkspace Packageへ分割するmonorepoに適用する。workspace Packageを、責務、公開範囲、依存宣言、理解、変更の基本境界として扱う。workspace Packageはデプロイ単位、実行プロセス、サービス、チームの単位と一致しなくてよい。
+この規約は、TypeScriptとnpm workspacesのmonorepoで、MMAの各Moduleを一つのworkspace packageとして実装する場合に適用する。workspace packageを、責務、公開範囲、依存宣言、理解、変更の基本境界として扱う。workspace packageはデプロイ単位、実行プロセス、サービス、チームの単位と一致しなくてよい。
 
 各規則は、設計、実装、変更、レビュー、テスト設計、説明で対象コードが準拠しているか判断するためのContextである。このContext自体は、それらの活動の手順、成果物、完了条件、報告形式を定めない。
 
 TypeScript以外の言語、npm workspaces以外のworkspace方式、ESLintなど特定の境界検査器、特定のbuild toolやtest frameworkの選定は対象外とする。
 
-## Packageの基本構造
+## workspace packageの基本構造
 
-workspaceルートの`package.json`は、対象Packageを`workspaces`へ列挙する。ルート自体を公開Packageとして配布しない場合は、誤公開を防ぐため`private: true`にする。
+workspaceルートの`package.json`は、対象workspace packageを`workspaces`へ列挙する。ルート自体をnpmパッケージとして公開しない場合は、誤公開を防ぐため`private: true`にする。
 
 ```json
 {
@@ -24,18 +24,18 @@ workspaceルートの`package.json`は、対象Packageを`workspaces`へ列挙�
 }
 ```
 
-各workspace Packageは少なくとも自身の`package.json`、責務を記した`README.md`、実装コード、公開契約テストを持つ。具体的なソース、出力、テストのディレクトリ名は固定しない。
+各workspace packageは少なくとも自身の`package.json`、責務を記した`README.md`、実装コード、公開契約テストを持つ。具体的なソース、出力、テストのディレクトリ名は固定しない。
 
 ## TW-01: 責務と変更理由をREADMEへ定義する
 
-各Packageの`README.md`は、責務、非責務、変更される理由、変更されない理由の正本でなければならない。
+各workspace packageの`README.md`は、責務、非責務、変更される理由、変更されない理由の正本でなければならない。
 
 ### 不変条件
 
-- 責務はファイルや現在の機能の一覧ではなく、Packageが所有するルールまたは判断として記述されている。
+- 責務はファイルや現在の機能の一覧ではなく、workspace packageが所有するルールまたは判断として記述されている。
 - 非責務から、隣接する関心事の所有者を誤認しない。
 - 「何が変わるときに変わるか」と「何が変わっても変わらないか」を判別できる。
-- Packageへ加えられる責務上の変更は、READMEに記載された変更理由のいずれかで説明できる。
+- workspace packageへ加えられる責務上の変更は、READMEに記載された変更理由のいずれかで説明できる。
 - READMEは内部アルゴリズムへ立ち入らず、内部実装を読むより小さい情報量で要求との関係を判断できる。
 
 見出し名は変更できるが、次の情報を欠かしてはならない。
@@ -56,11 +56,11 @@ TODOの生成、更新、完了、期限切れに関するルールが変わる�
 TODOの表示方法や通知チャネルだけが変わるとき。
 ```
 
-`utils`や`shared`のような名前だけで無関係な変更理由を受け入れるPackageや、READMEの変更理由で説明できないコードの追加は違反である。
+`utils`や`shared`のような名前だけで無関係な変更理由を受け入れるworkspace packageや、READMEの変更理由で説明できないコードの追加は違反である。
 
 ## TW-02: 公開APIをexportsで限定する
 
-各Packageの`package.json#exports`は、外部Packageが利用してよいTypeScriptのentrypointを個別に列挙しなければならない。ルートentrypointと、用途の異なる公開契約を表すsubpath entrypointを明示し、それぞれを公開用の`.ts`ファイルへ直接向ける。
+各workspace packageの`package.json#exports`は、外部workspace packageが利用してよいTypeScriptのentrypointを個別に列挙しなければならない。ルートentrypointと、用途の異なる公開契約を表すsubpath entrypointを明示し、それぞれを公開用の`.ts`ファイルへ直接向ける。
 
 ### 不変条件
 
@@ -71,7 +71,7 @@ TODOの表示方法や通知チャネルだけが変わるとき。
 - 公開用`.ts` entrypointから再exportされる要素は、維持を約束する関数、型、クラス、イベントなどに限定されている。
 - 用途の異なるsubpathは、利用目的と維持する契約が説明できる単位で定義されている。
 
-次の例では、Packageのルート契約を`src/index.ts`、イベント契約を`src/events.ts`が所有する。
+次の例では、workspace packageのルート契約を`src/index.ts`、イベント契約を`src/events.ts`が所有する。
 
 ```json
 {
@@ -92,17 +92,17 @@ export type { Todo } from "./todo";
 
 `dist/index.js`などのビルド成果物だけを`exports`のtargetにする設定や、`"./*": "./src/*"`のように内部構造を一括公開する設定は、この規約への違反である。
 
-## TW-03: Package境界を迂回するimportを禁止する
+## TW-03: workspace package境界を迂回するimportを禁止する
 
-外部Packageは、依存先のPackage名と`exports`に列挙されたentrypointだけを通じてimportしなければならない。同一Package内の相対importはこの制約の対象外である。
+外部workspace packageは、依存先のworkspace package名と`exports`に列挙されたentrypointだけを通じてimportしなければならない。同一workspace package内の相対importはこの制約の対象外である。
 
 ### 不変条件
 
-- Package名の後ろへ内部パスを付けるdeep importが存在しない。
-- 相対パスまたは絶対パスで別workspace Packageのファイルへ到達するfilesystem importが存在しない。
-- TypeScriptの`paths`などのaliasで別Packageの内部ファイルへ到達するimportが存在しない。
-- import先をmodule resolverで解決した結果、別Packageの内部ファイルへ到達しない。
-- 別Packageから利用されるコードは、依存先の公開entrypointから到達できる。
+- workspace package名の後ろへ内部パスを付けるdeep importが存在しない。
+- 相対パスまたは絶対パスで別workspace packageのファイルへ到達するfilesystem importが存在しない。
+- TypeScriptの`paths`などのaliasで別workspace packageの内部ファイルへ到達するimportが存在しない。
+- import先をmodule resolverで解決した結果、別workspace packageの内部ファイルへ到達しない。
+- 別workspace packageから利用されるコードは、依存先の公開entrypointから到達できる。
 
 ```ts
 // 準拠
@@ -111,7 +111,7 @@ import { TodoBecameOverdue } from "@app/todo/events";
 // 違反: deep import
 import { TodoBecameOverdue } from "@app/todo/src/internal/events.js";
 
-// 違反: Package境界を越えるfilesystem import
+// 違反: workspace package境界を越えるfilesystem import
 import { TodoBecameOverdue } from "../../todo/src/internal/events.js";
 ```
 
@@ -119,7 +119,7 @@ import文字列の見た目だけを検査し、aliasやsymlinkで解決され�
 
 ## TW-04: すべての公開契約を外部利用者としてテストする
 
-公開APIの型と構造、入力条件、保証される振る舞い、エラー、副作用など、すべての公開契約に対応する自動テストがなければならない。公開契約テストは、外部Packageと同じ公開entrypointだけを利用する。
+公開APIの型と構造、入力条件、保証される振る舞い、エラー、副作用など、すべての公開契約に対応する自動テストがなければならない。公開契約テストは、外部workspace packageと同じ公開entrypointだけを利用する。
 
 ### 不変条件
 
@@ -150,15 +150,15 @@ test("空のタイトルを拒否する", () => {
 
 ## TW-05: 直接依存を利用側manifestへ宣言する
 
-他のworkspace Packageを直接利用するPackageは、自身の`package.json`へその依存を宣言しなければならない。ルートへの一括宣言や推移的インストールは、利用側Packageの直接依存宣言を代替しない。
+他のworkspace packageを直接利用するworkspace packageは、自身の`package.json`へその依存を宣言しなければならない。ルートへの一括宣言や推移的インストールは、利用側workspace packageの直接依存宣言を代替しない。
 
 ### 不変条件
 
-- workspace Package間の各直接importに、利用側Packageのmanifest内で対応する依存宣言がある。
-- manifestへ宣言されたPackage間依存は実際に利用され、不要な宣言が残っていない。
+- workspace package間の各直接importに、利用側workspace packageのmanifest内で対応する依存宣言がある。
+- manifestへ宣言されたworkspace package間依存は実際に利用され、不要な宣言が残っていない。
 - 実行時、build時、型検査時、test時などの利用実態と依存種別が一致している。
-- 依存の有無は、import specifierではなくresolverで解決した参照先のworkspace Packageを基準に判定される。
-- Package間の直接依存をworkspaceルートのmanifestだけへ置いていない。
+- 依存の有無は、import specifierではなくresolverで解決した参照先のworkspace packageを基準に判定される。
+- workspace package間の直接依存をworkspaceルートのmanifestだけへ置いていない。
 
 ```json
 {
@@ -173,13 +173,13 @@ workspace内依存のversion指定方法は、利用するnpmの機能とリリ�
 
 ## TW-06: 暗黙的な依存を型付き公開シンボルにする
 
-イベント名、DI token、データ形式、schema、resource descriptor、handler登録などを介した意味上の依存は、表現可能な限り所有Packageが公開するTypeScriptシンボルとして一度だけ定義し、利用側がimportしなければならない。
+イベント名、DI token、データ形式、schema、resource descriptor、handler登録などを介した意味上の依存は、表現可能な限り所有workspace packageが公開するTypeScriptシンボルとして一度だけ定義し、利用側がimportしなければならない。
 
 ### 不変条件
 
-- 契約の意味を所有するPackageが、共有される名前とデータ構造の正本を公開する。
+- 契約の意味を所有するworkspace packageが、共有される名前とデータ構造の正本を公開する。
 - 発行側、購読側、提供側、利用側がそれぞれ同じ公開シンボルを参照する。
-- 同じイベント名、token、schema、resource名を複数Packageへ文字列や構造として重複定義していない。
+- 同じイベント名、token、schema、resource名を複数workspace packageへ文字列や構造として重複定義していない。
 - 公開契約の利用箇所を参照検索でき、データ構造の不整合を型検査またはschema検査で検出できる。
 - 公開シンボルへの依存が、利用側manifestにも直接依存として現れる。
 
@@ -214,12 +214,12 @@ broker.subscribe(TodoBecameOverdue, event => {
 
 ## TW-07: importで表せない依存だけをREADMEへ明示する
 
-外部API、queue、環境変数、共有ファイル、起動順序など、TypeScriptの公開シンボルへのimportで表せない依存は、利用側Packageの`README.md`へ明記しなければならない。他Packageが所有する資源の場合は、所有Package側からも対応関係をたどれるようにする。
+外部API、queue、環境変数、共有ファイル、起動順序など、TypeScriptの公開シンボルへのimportで表せない依存は、利用側workspace packageの`README.md`へ明記しなければならない。他workspace packageが所有する資源の場合は、所有workspace package側からも対応関係をたどれるようにする。
 
 ### 不変条件
 
 - 各非import依存について、依存先、対象の資源または契約、依存理由を特定できる。
-- 他Package所有の資源について、所有Packageと利用Packageの両側から関係をたどれる。
+- 他workspace package所有の資源について、所有workspace packageと利用workspace packageの両側から関係をたどれる。
 - 型、schema、event、token、accessorなどの公開シンボルで表現できる依存を、README記載だけで済ませていない。
 - READMEの記録が現在の実行時依存と一致している。
 
@@ -235,15 +235,15 @@ broker.subscribe(TodoBecameOverdue, event => {
 
 ## TW-08: 境界と依存宣言を静的に強制する
 
-Package境界と依存宣言は、すべてのworkspace Packageを対象とする静的検査によって継続的に強制できなければならない。検査器の製品や実装方式は固定しない。
+workspace package境界と依存宣言は、すべてのworkspace packageを対象とする静的検査によって継続的に強制できなければならない。検査器の製品や実装方式は固定しない。
 
 ### 不変条件
 
-- resolverで解決したimport先が属するworkspace Packageを判定できる。
-- 未宣言のPackage間依存、deep import、Package境界を越えるfilesystem importとaliasを検出して拒否できる。
+- resolverで解決したimport先が属するworkspace packageを判定できる。
+- 未宣言のworkspace package間依存、deep import、workspace package境界を越えるfilesystem importとaliasを検出して拒否できる。
 - manifestにある未使用依存と、利用実態に合わない依存種別を検出できる。
 - `exports`にない外部利用と、公開を意図しない内部ファイルへの到達を検出できる。
-- 検査対象外のworkspace Packageや、手動確認だけに依存する例外経路が存在しない。
+- 検査対象外のworkspace packageや、手動確認だけに依存する例外経路が存在しない。
 
 ## 四つの性質との対応
 
@@ -252,6 +252,6 @@ Package境界と依存宣言は、すべてのworkspace Packageを対象とす�
 | 変更凝集性 | READMEによる責務、非責務、変更理由の定義 |
 | 実装隠蔽性 | 限定された`exports`とdeep import、filesystem import、迂回aliasの禁止 |
 | ブラックボックス性 | README、公開entrypoint、外部利用者としての公開契約テスト |
-| 依存追跡性 | Packageごとのmanifest、importとの一致、型付き公開シンボル、非import依存の明示 |
+| 依存追跡性 | workspace packageごとのmanifest、importとの一致、型付き公開シンボル、非import依存の明示 |
 
 一つの規約を別の規約で代替しない。例えば、`exports`を限定してもfilesystem importを許せば実装隠蔽性は成立せず、manifestへ依存を書いても文字列だけで結び付いた意味上の依存を放置すれば依存追跡性は成立しない。
