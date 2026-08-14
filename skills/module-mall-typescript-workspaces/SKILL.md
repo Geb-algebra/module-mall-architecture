@@ -15,16 +15,22 @@ TypeScript以外の言語、npm workspaces以外のworkspace方式、ESLintな�
 
 ## workspace packageの基本構造
 
-workspaceルートの`package.json`は、対象workspace packageを`workspaces`へ列挙する。ルート自体をnpmパッケージとして公開しない場合は、誤公開を防ぐため`private: true`にする。
+workspaceルートの`package.json`は、対象workspace packageを`workspaces`へ列挙する。packageを`packages/`直下に平坦に配置する`packages/*`に加え、関連moduleをサブディレクトリでまとめる場合は、`packages/domain/*`のように対象階層を明示して列挙する。`packages/**/*`のような再帰的なglobは、moduleではない深いディレクトリや意図しない入れ子の`package.json`までworkspaceとして拾う可能性があるため、この規約では採用しない。ルート自体をnpmパッケージとして公開しない場合は、誤公開を防ぐため`private: true`にする。
 
 ```json
 {
   "private": true,
-  "workspaces": ["packages/*"]
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/domain/*",
+    "packages/import/*",
+    "packages/simulation/*"
+  ]
 }
 ```
 
-各workspace packageは少なくとも自身の`package.json`、責務を記した`README.md`、実装コード、公開契約テストを持つ。具体的なソース、出力、テストのディレクトリ名は固定しない。
+`packages/`以下のディレクトリは、列挙された階層にある自身の`package.json`によってworkspace packageの単位になる。グループ化のためだけの中間ディレクトリはworkspace packageではなく、関連moduleをまとめる論理的な整理単位である。新しいmoduleグループを追加する場合は、その階層のglobを`workspaces`へ追加する。各workspace packageは少なくとも自身の`package.json`、責務を記した`README.md`、実装コード、公開契約テストを持つ。具体的なソース、出力、テストのディレクトリ名は固定しない。
 
 ## TW-01: 責務と変更理由をREADMEへ定義する
 
