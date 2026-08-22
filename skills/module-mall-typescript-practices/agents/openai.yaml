@@ -1,0 +1,4 @@
+interface:
+  display_name: "Module Mall TypeScript Practices"
+  short_description: "TypeScript workspaceでMMA境界を維持する実装規則"
+  default_prompt: "Use $module-mall-typescript-practices to assess this TypeScript workspace implementation."

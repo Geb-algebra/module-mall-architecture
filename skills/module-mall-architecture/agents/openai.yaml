@@ -1,0 +1,4 @@
+interface:
+  display_name: "Module Mall Architecture"
+  short_description: "変更影響解析を安くする言語非依存のモジュール設計規則"
+  default_prompt: "Use $module-mall-architecture to evaluate these module boundaries and dependencies."
