@@ -48,7 +48,11 @@ When the public contract remains stable, internal changes must not require depen
 
 ### Black-box usability
 
-Make responsibility and externally observable behavior understandable without reading internal implementation. Public contract artifacts must reveal responsibility and non-responsibility; owned and excluded change reasons; available public API and its meaning; and relevant inputs, preconditions, guarantees, errors, and side effects.
+Aim for the same black-box usability as documentation for a published third-party library: consumers should be able to understand when and how to use the module without reading its implementation.
+
+Make responsibility and externally observable behavior understandable without reading internal implementation. Public contract artifacts must reveal the module's responsibility and owned change reasons; what concept each public API represents, what externally observable behavior it provides, and why it is exposed; how consumers use the public API for every major supported use case; and relevant inputs, preconditions, guarantees, errors, and side effects. A major use case is each distinct consumer goal or workflow the module publicly supports, not every input variation or edge case.
+
+To make responsibility and change reasons unambiguous, the artifacts must also distinguish the module from every related module whose responsibility could reasonably be confused with it. For each such module, identify both modules' responsibilities and the change-reason boundary: which kinds of change belong to this module and which belong to the related module.
 
 Artifacts must be materially cheaper to inspect than the implementation, have an obvious location or navigation path, and remain consistent with the current contract. A change request's relationship to a module must be decidable from these artifacts before inspecting the module's internal implementation.
 
@@ -67,8 +71,8 @@ All applicable modules must satisfy these observable conditions:
 - **MMA-03 Contract-only access**: Cross-module use reaches only declared public contracts; no cross-boundary reference reaches internal implementation.
 - **MMA-04 Minimal contract**: Every public element has an external use consistent with the module's responsibility; implementation conveniences are not public.
 - **MMA-05 Stable-contract containment**: A change that preserves a module's public contract can be completed without changing consumers solely because of that module's internal details.
-- **MMA-06 Discoverable responsibility**: Responsibility, non-responsibility, owned change reasons, and excluded change reasons can be determined from public contract artifacts.
-- **MMA-07 Observable behavior documented**: Inputs, preconditions, guarantees, errors, and side effects promised to consumers are represented in public contract artifacts.
+- **MMA-06 Discoverable responsibility**: Responsibility and owned change reasons can be determined from public contract artifacts. For every related module with a plausibly similar responsibility, the artifacts identify both modules' responsibilities and which change reasons belong to each side.
+- **MMA-07 Understandable public contract**: Public contract artifacts explain what concept every public API represents, why it is exposed, how to use it for every major supported use case, and its promised inputs, preconditions, guarantees, errors, and side effects.
 - **MMA-08 Trustworthy artifacts**: Public contract artifacts agree with the implemented contract and are smaller and faster to inspect than internal implementation.
 - **MMA-09 Complete direct dependencies**: Every semantic cross-module dependency has a declared edge from consumer to owner, including non-call and runtime dependencies.
 - **MMA-10 Declaration fidelity**: Declared edges correspond to actual use, actual cross-module use is declared, and the declared dependency kind matches the use.
@@ -96,7 +100,9 @@ An undocumented exception, an exception whose remaining impact paths cannot be t
 | A consumer reads another module's database tables directly | Violates implementation hiding unless that schema is an intentional public contract owned and governed as such. |
 | Two modules exchange an event using duplicated string names and shapes | Violates dependency traceability because the semantic dependency lacks a shared, owned reference. |
 | Runtime constraints require duplicated logic | The duplication may be a justified tradeoff, but ownership, synchronization obligations, and dependency edges must remain explicit. |
-| A module README lists files but not owned decisions | Insufficient black-box usability; inventory does not explain relation to a change request. |
+| A public contract artifact lists files but not owned decisions | Insufficient black-box usability; inventory does not explain relation to a change request. |
+| Public contract artifacts name a related module but do not distinguish their responsibilities and change reasons | Violates black-box usability; the owner of a change reason remains ambiguous. |
+| Public contract artifacts list API signatures but do not explain why they are public or how to use them for a major consumer workflow | Violates black-box usability; declarations alone do not make the contract understandable or usable. |
 
 ## Relationship among the properties
 

@@ -19,16 +19,56 @@ The package boundary follows ownership of change reasons. Do not create packages
 
 ## Package README
 
-Use the `README.md` at each package root as the source of truth for responsibility, non-responsibility, meaning, and intent. It must make these facts discoverable without reading implementation:
+Use the `README.md` at each package root as the source of truth for the package's responsibility, change reasons, public API meaning and exposure, and usage. Write it for consumers who do not already know the public contract. Include:
 
-- responsibility and non-responsibility;
-- rules and judgments owned by the package;
-- changes that cause the package to change;
-- changes that do not cause it to change;
-- public entrypoints and externally observable errors or side effects when declarations alone are insufficient;
-- non-import dependencies that cannot be represented as TypeScript symbols.
+- **Responsibility**: the decisions, rules, and judgments owned by the package.
+- **Change reasons**: the kinds of change that cause the package to change.
+- **Responsibility and change-reason boundaries with related packages**: every package whose responsibility could reasonably be confused with this package's, with this package's responsibility, the related package's responsibility, and which change reasons belong to each side.
+- **Public API**: every exported API, the concept it represents, its observable behavior, and why consumers need it to be public. Include inputs, preconditions, guarantees, errors, and side effects that declarations alone do not communicate.
+- **Usage**: public-API-only TypeScript examples that collectively cover every major supported consumer goal or workflow. Explain the concepts and behavior needed to understand each example instead of assuming prior contract knowledge.
+- **Non-import dependencies**: dependencies that cannot be represented as TypeScript symbols, including their consumer, owner, relied-upon contract or resource, and reason.
 
-Describe owned decisions, not a file inventory or internal algorithm. Every responsibility-bearing package change must be explainable by a documented change reason. The README, exported API, and contract tests are separate views of one current public contract and must agree. An external architecture catalog may index or summarize packages, but it does not replace the package-root README.
+For example:
+
+````markdown
+# @app/order-pricing
+
+## Responsibility
+
+Owns how an order price quote is assembled from pricing inputs.
+
+## Change reasons
+
+- The composition or meaning of an order price quote changes.
+
+## Responsibility and change-reason boundaries with related packages
+
+### @app/order-discounts
+
+- This package owns assembling the quote from pricing results.
+- `@app/order-discounts` owns discount eligibility and calculation rules.
+- Quote composition changes belong here; discount-policy changes belong to `@app/order-discounts`.
+
+## Public API
+
+### `quoteOrder(input)`
+
+Represents the operation of producing an order price quote. It is public so consumers can request a quote without depending on pricing internals. Document its observable result, inputs, preconditions, errors, and side effects here.
+
+## Usage
+
+### Quote an order
+
+Use `quoteOrder` when a consumer needs the complete price quote for an order.
+
+```ts
+import { quoteOrder } from "@app/order-pricing";
+
+const quote = quoteOrder({ items, customer, destination });
+```
+````
+
+Add a `Usage` example for every other major supported use case and a `Public API` entry for every other export. Describe owned decisions, not a file inventory or internal algorithm. Every responsibility-bearing package change must be explainable by a documented change reason. The README, exported API, and contract tests are separate views of one current public contract and must agree. An external architecture catalog may index or summarize packages, but it does not replace the package-root README.
 
 ## Public API and `exports`
 
@@ -148,3 +188,4 @@ The checks must reject undeclared cross-package dependencies, deep imports, file
 - **TS-MMA-08 Owned shared symbols**: Events, tokens, formats, schemas, and resources shared across packages have one owner and a common imported symbol whenever TypeScript can express them.
 - **TS-MMA-09 Recorded runtime edges**: Semantic dependencies that imports cannot express identify their consumer, owner, relied-upon resource or contract, and dependency reason.
 - **TS-MMA-10 Universal static enforcement**: Static boundary and dependency checks cover every workspace package and every supported loading form, with no excluded package or manual-review-only exception path.
+- **TS-MMA-11 Complete package README**: Every package-root README documents responsibility, change reasons, responsibility and change-reason boundaries with every related package whose responsibility could be confused with it, every public API's concept and reason for exposure, and public-API-only examples covering every major supported use case.
